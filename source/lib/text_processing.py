@@ -17,6 +17,7 @@
 import os
 import sys
 import logging
+import shlex
 from pathlib import Path
 import numpy as np
 from subprocess import run, check_output, CalledProcessError, DEVNULL
@@ -98,6 +99,12 @@ def Token(inp_fname, out_fname, lang='en',
                           '(gzip)' if gzip else '',
                           '(de-escaped)' if descape else '',
                           '(romanized)' if romanize else ''))
+
+        inp_fname = shlex.quote(inp_fname)
+        roman = shlex.quote(roman)
+        out_fname = shlex.quote(out_fname)
+        lang = shlex.quote(lang)    
+
         run(cat + inp_fname
             + '|' + REM_NON_PRINT_CHAR
             + '|' + NORM_PUNC + lang
