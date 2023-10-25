@@ -1,5 +1,6 @@
 source/__pycache__
 source/lib/__pycache__
+flores
 models
 tools-external
 tasks/mldoc/MLDoc
@@ -10,3 +11,4 @@ tasks/xnli/XNLI-1.0*
 tasks/xnli/multinli_1.0*
 .??*swp
 .idea
+test.py
