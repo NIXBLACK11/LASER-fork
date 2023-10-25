@@ -1,5 +1,6 @@
+import os
 from laser_encoders.language_list import LASER2_LANGUAGE, LASER3_LANGUAGE
-from laser_encoders.download_models import LaserModelDownloader, initialize_encoder, initialize_tokenizer
+from download_models import LaserModelDownloader, initialize_encoder, initialize_tokenizer
 
 def validate_language_models_and_tokenize():
     downloader = LaserModelDownloader()
@@ -15,6 +16,11 @@ def validate_language_models_and_tokenize():
             tokenized = tokenizer.tokenize("This is a sample sentence.")
         except Exception as e:
             failed_languages.append((lang, e))
+        finally:
+            # Delete the downloaded models
+            model_files = [f"laser3-{lang}.v1.pt", f"laser3-{lang}.v1.spm", f"laser3-{lang}.v1.cvocab"]
+            for file in model_files:
+                os.remove(os.path.join(downloader.model_dir, file))
 
     for lang in LASER2_LANGUAGE:
         try:
@@ -26,9 +32,14 @@ def validate_language_models_and_tokenize():
             tokenized = tokenizer.tokenize("This is a sample sentence.")
         except Exception as e:
             failed_languages.append((lang, e))
+        finally:
+            # Delete the downloaded models
+            model_files = ["laser2.pt", "laser2.spm", "laser2.cvocab"]
+            for file in model_files:
+                os.remove(os.path.join(downloader.model_dir, file))
 
     if not failed_languages:
-        print("All language models validated successfully.")
+        print("All language models validated and deleted successfully.")
     else:
         print("Failed to validate the following language models:")
         for lang, error in failed_languages:
