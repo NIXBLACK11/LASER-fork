@@ -9,13 +9,18 @@ def validate_language_models_and_tokenize():
 
     for lang in LASER3_LANGUAGE:
         i=i+1
+        print(lang)
         try:
+            sentence = "This is a sample sentence."
             # Use the downloader to download the model
             downloader.download_laser3(lang)
             encoder = initialize_encoder(lang)
             tokenizer = initialize_tokenizer(lang)
             # Test tokenization with a sample sentence
-            tokenized = tokenizer.tokenize("This is a sample sentence.")
+            tokenized_sentence = tokenizer.tokenize(sentence)
+            embeddings = encoder.encode_sentences([tokenized_sentence])
+            print(tokenized_sentence)
+            print(embeddings)
         except Exception as e:
             failed_languages.append((lang, e))
         finally:
@@ -24,7 +29,7 @@ def validate_language_models_and_tokenize():
             for file in model_files:
                 os.remove(os.path.join(downloader.model_dir, file))
         
-        if i==1:
+        if i==3:
             break
 
 

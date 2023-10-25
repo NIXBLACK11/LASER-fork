@@ -8,37 +8,39 @@ def validate_language_models_and_tokenize():
 
     for lang in LASER3_LANGUAGE:
         try:
-            sentence = "This is a sample sentence."
             # Use the downloader to download the model
             downloader.download_laser3(lang)
             encoder = initialize_encoder(lang)
             tokenizer = initialize_tokenizer(lang)
             # Test tokenization with a sample sentence
-            tokenized_sentence = tokenizer.tokenize(sentence)
-            embeddings = encoder.encode_sentences([tokenized_sentence])
-        finally:
-            # Delete the downloaded models
-            model_files = [f"laser3-{lang}.v1.pt", f"laser3-{lang}.v1.spm", f"laser3-{lang}.v1.cvocab"]
-            for file in model_files:
-                os.remove(os.path.join(downloader.model_dir, file))
-
-    for lang in LASER2_LANGUAGE:
-        try:
-            sentence = "This is a sample sentence."
-            # Use the downloader to download the model
-            downloader.download_laser3(lang)
-            encoder = initialize_encoder(lang)
-            tokenizer = initialize_tokenizer(lang)
-            # Test tokenization with a sample sentence
-            tokenized_sentence = tokenizer.tokenize(sentence)
-            embeddings = encoder.encode_sentences([tokenized_sentence])
+            tokenized = tokenizer.tokenize("This is a sample sentence.")
         except Exception as e:
             failed_languages.append((lang, e))
         finally:
-            # Delete the downloaded models
+            # Delete the downloaded models if they exist
+            model_files = [f"laser3-{lang}.v1.pt", f"laser3-{lang}.v1.spm", f"laser3-{lang}.v1.cvocab"]
+            for file in model_files:
+                file_path = os.path.join(downloader.model_dir, file)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+
+    for lang in LASER2_LANGUAGE:
+        try:
+            # Use the downloader to download the model
+            downloader.download_laser2()
+            encoder = initialize_encoder(lang, laser="laser2")
+            tokenizer = initialize_tokenizer(lang)
+            # Test tokenization with a sample sentence
+            tokenized = tokenizer.tokenize("This is a sample sentence.")
+        except Exception as e:
+            failed_languages.append((lang, e))
+        finally:
+            # Delete the downloaded models if they exist
             model_files = ["laser2.pt", "laser2.spm", "laser2.cvocab"]
             for file in model_files:
-                os.remove(os.path.join(downloader.model_dir, file))
+                file_path = os.path.join(downloader.model_dir, file)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
 
     if not failed_languages:
         print("All language models validated and deleted successfully.")
