@@ -1,6 +1,6 @@
 import os
-from laser_encoders.language_list import LASER2_LANGUAGE, LASER3_LANGUAGE
-from laser_encoders.download_models import LaserModelDownloader, initialize_encoder, initialize_tokenizer
+from language_list import LASER2_LANGUAGE, LASER3_LANGUAGE
+from download_models import LaserModelDownloader, initialize_encoder, initialize_tokenizer
 
 def validate_language_models_and_tokenize():
     downloader = LaserModelDownloader()
