@@ -1,6 +1,6 @@
 import os
-from language_list import LASER2_LANGUAGE, LASER3_LANGUAGE
-from download_models import LaserModelDownloader, initialize_encoder, initialize_tokenizer
+from laser_encoders.language_list import LASER2_LANGUAGE, LASER3_LANGUAGE
+from laser_encoders.download_models import LaserModelDownloader, initialize_encoder, initialize_tokenizer
 
 def validate_language_models_and_tokenize():
     downloader = LaserModelDownloader()
@@ -16,6 +16,7 @@ def validate_language_models_and_tokenize():
             tokenized = tokenizer.tokenize("This is a sample sentence.")
         except Exception as e:
             failed_languages.append((lang, e))
+            break  # Stop testing if a test fails
         finally:
             # Delete the downloaded models if they exist
             model_files = [f"laser3-{lang}.v1.pt", f"laser3-{lang}.v1.spm", f"laser3-{lang}.v1.cvocab"]
@@ -23,6 +24,12 @@ def validate_language_models_and_tokenize():
                 file_path = os.path.join(downloader.model_dir, file)
                 if os.path.exists(file_path):
                     os.remove(file_path)
+
+    if failed_languages:
+        print("Failed to validate the following language models:")
+        for lang, error in failed_languages:
+            print(f"Language: {lang}, Error: {error}")
+        return
 
     for lang in LASER2_LANGUAGE:
         try:
@@ -34,6 +41,7 @@ def validate_language_models_and_tokenize():
             tokenized = tokenizer.tokenize("This is a sample sentence.")
         except Exception as e:
             failed_languages.append((lang, e))
+            break  # Stop testing if a test fails
         finally:
             # Delete the downloaded models if they exist
             model_files = ["laser2.pt", "laser2.spm", "laser2.cvocab"]
@@ -42,12 +50,11 @@ def validate_language_models_and_tokenize():
                 if os.path.exists(file_path):
                     os.remove(file_path)
 
-    if not failed_languages:
-        print("All language models validated and deleted successfully.")
-    else:
+    if failed_languages:
         print("Failed to validate the following language models:")
         for lang, error in failed_languages:
             print(f"Language: {lang}, Error: {error}")
+    else:
+        print("All language models validated and deleted successfully.")
 
-if __name__ == "__main__":
-    validate_language_models_and_tokenize()
+validate_language_models_and_tokenize()
