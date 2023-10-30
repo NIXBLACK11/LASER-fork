@@ -14,3 +14,5 @@ tasks/xnli/multinli_1.0*
 test.py
 testOne.py
 test2.py
+t.py
+laser_encoders/result
