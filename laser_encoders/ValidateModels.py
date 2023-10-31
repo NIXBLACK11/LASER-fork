@@ -1,60 +1,30 @@
 import os
+import tempfile
 from laser_encoders.language_list import LASER2_LANGUAGE, LASER3_LANGUAGE
 from laser_encoders.download_models import LaserModelDownloader, initialize_encoder, initialize_tokenizer
 
 def validate_language_models_and_tokenize():
-    downloader = LaserModelDownloader()
-    failed_languages = []
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        print('Created temporary directory', tmp_dir)
 
-    for lang in LASER3_LANGUAGE:
-        try:
+        downloader = LaserModelDownloader(model_dir=tmp_dir)
+
+        for lang in LASER3_LANGUAGE:
             # Use the downloader to download the model
             downloader.download_laser3(lang)
-            encoder = initialize_encoder(lang)
-            tokenizer = initialize_tokenizer(lang)
+            encoder = initialize_encoder(lang, model_dir=tmp_dir)
+            tokenizer = initialize_tokenizer(lang, model_dir=tmp_dir)
             # Test tokenization with a sample sentence
             tokenized = tokenizer.tokenize("This is a sample sentence.")
-        except Exception as e:
-            failed_languages.append((lang, e))
-            break  # Stop testing if a test fails
-        finally:
-            # Delete the downloaded models if they exist
-            model_files = [f"laser3-{lang}.v1.pt", f"laser3-{lang}.v1.spm", f"laser3-{lang}.v1.cvocab"]
-            for file in model_files:
-                file_path = os.path.join(downloader.model_dir, file)
-                if os.path.exists(file_path):
-                    os.remove(file_path)
 
-    if failed_languages:
-        print("Failed to validate the following language models:")
-        for lang, error in failed_languages:
-            print(f"Language: {lang}, Error: {error}")
-        return
-
-    for lang in LASER2_LANGUAGE:
-        try:
+        for lang in LASER2_LANGUAGE:
             # Use the downloader to download the model
             downloader.download_laser2()
-            encoder = initialize_encoder(lang, laser="laser2")
-            tokenizer = initialize_tokenizer(lang)
+            encoder = initialize_encoder(lang, model_dir=tmp_dir, laser="laser2")
+            tokenizer = initialize_tokenizer(lang, model_dir=tmp_dir)
             # Test tokenization with a sample sentence
             tokenized = tokenizer.tokenize("This is a sample sentence.")
-        except Exception as e:
-            failed_languages.append((lang, e))
-            break  # Stop testing if a test fails
-        finally:
-            # Delete the downloaded models if they exist
-            model_files = ["laser2.pt", "laser2.spm", "laser2.cvocab"]
-            for file in model_files:
-                file_path = os.path.join(downloader.model_dir, file)
-                if os.path.exists(file_path):
-                    os.remove(file_path)
 
-    if failed_languages:
-        print("Failed to validate the following language models:")
-        for lang, error in failed_languages:
-            print(f"Language: {lang}, Error: {error}")
-    else:
-        print("All language models validated and deleted successfully.")
+    print("All language models validated and deleted successfully.")
 
 validate_language_models_and_tokenize()
